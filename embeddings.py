@@ -234,9 +234,9 @@ class ESM2Embedder:
     """Generate protein embeddings using ESM2-150M from HuggingFace."""
     
     # MODEL_NAME = "facebook/esm2_t30_150M_UR50D" # 640 embeddings
-    MODEL_NAME = "facebook/esm2_t33_650M_UR50D" # 1280 embeddings
+    # MODEL_NAME = "facebook/esm2_t33_650M_UR50D" # 1280 embeddings
     # MODEL_NAME = "facebook/esm2_t36_3B_UR50D" # 2560 embeddings
-    # MODEL_NAME = "facebook/esm2_t48_15B_UR50D" # 5120 embeddings
+    MODEL_NAME = "facebook/esm2_t48_15B_UR50D" # 5120 embeddings
     
     def __init__(self, device: str = None, max_length: int = 1024):
         """
@@ -467,13 +467,13 @@ class TFScreeningPipeline:
         
         if len(genes) > 0:
             # Save embeddings
-            emb_path = output_dir / 'embeddings_1280.npz'
+            emb_path = output_dir / 'embeddings_5120.npz'
             np.savez(emb_path, genes=genes, embeddings=embedding_matrix)
             logger.info(f"Saved embeddings to {emb_path} (shape: {embedding_matrix.shape})")
             
             # Also save as DataFrame for easy inspection
             emb_df = pd.DataFrame(embedding_matrix, index=genes)
-            emb_df.to_csv(output_dir / 'embeddings_1280.csv')
+            emb_df.to_csv(output_dir / 'embeddings_5120.csv')
         
         return summary_df, embedding_matrix
 

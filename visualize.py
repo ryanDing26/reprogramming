@@ -4,9 +4,9 @@ from sklearn.decomposition import PCA
 from umap import UMAP
 
 # Load embeddings
-data = np.load('tf_embeddings_output/embeddings.npz', allow_pickle=True)
+data = np.load('tf_embeddings_output/embeddings_5120.npz', allow_pickle=True)
 genes = data['genes']
-embeddings = data['embeddings']  # shape: (n_genes, 640)
+embeddings = data['embeddings']  # shape: (n_genes, dimensions)
 
 # PCA
 pca = PCA(n_components=2)
