@@ -31,17 +31,6 @@ ESM-2 is a transformer-based protein language model trained on 65M protein seque
 - Evolutionary conservation
 - Structural properties
 
-**Embedding dimension:** 1280 (for 650M model)
-
-### 2. ESM Embeddings → Predictions
-
-The pipeline trains three models:
-- **Random Forest**: Ensemble of decision trees
-- **Gradient Boosting**: Sequential tree-based learning
-- **Ridge Regression**: Linear model with L2 regularization
-
-The best model (based on 5-fold cross-validation) is selected automatically.
-
 ## Model Variants
 
 You can change the ESM model in the code:
