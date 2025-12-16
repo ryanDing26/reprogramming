@@ -7,5 +7,3 @@ scikit-learn
 matplotlib
 seaborn
 umap-learn
-lightgbm
-xgboost

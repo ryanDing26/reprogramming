@@ -1,6 +1,5 @@
 *.csv
 *.png
 tf_embeddings_output
+results
 setup.sh
-prediction_output_optimized
-prediction_results

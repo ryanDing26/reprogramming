@@ -19,8 +19,6 @@ umap_coords = umap_model.fit_transform(embeddings)
 # PCA figure
 plt.figure(figsize=(7, 6))
 plt.scatter(pca_coords[:, 0], pca_coords[:, 1], s=80, alpha=0.7)
-# for i, gene in enumerate(genes):
-#     plt.annotate(gene, (pca_coords[i, 0], pca_coords[i, 1]), fontsize=8)
 
 plt.xlabel(f'PC1 ({pca.explained_variance_ratio_[0]:.1%})')
 plt.ylabel(f'PC2 ({pca.explained_variance_ratio_[1]:.1%})')
@@ -33,8 +31,6 @@ plt.show()
 # UMAP figure
 plt.figure(figsize=(7, 6))
 plt.scatter(umap_coords[:, 0], umap_coords[:, 1], s=80, alpha=0.7)
-# for i, gene in enumerate(genes):
-#     plt.annotate(gene, (umap_coords[i, 0], umap_coords[i, 1]), fontsize=8)
 
 plt.xlabel('UMAP1')
 plt.ylabel('UMAP2')

@@ -1,7 +1,7 @@
 """
 Simple Prediction Heads for TF Screening
 =========================================
-- ElasticNet, SVR, MLP regression
+- ElasticNet, SVR, MLP, RandomForest regression
 - 1280-dim ESM2 embeddings
 - K-fold CV (k=3,4,5) with hyperparameter tuning
 - Sequences > 1024 AA excluded
@@ -17,6 +17,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import ElasticNet
 from sklearn.svm import SVR
 from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 import joblib
 import warnings
@@ -70,6 +71,14 @@ def load_data(
     # Remove controls
     control_mask = df[gene_col].str.lower() == 'control'
     df = df[~control_mask].copy()
+    print(f"Filtered {control_mask.sum()} control samples from CSV")
+    
+    # Filter by sequence length from CSV
+    if 'sequence_length' in df.columns:
+        seq_len_mask = df['sequence_length'] <= max_seq_len
+        n_filtered = (~seq_len_mask).sum()
+        df = df[seq_len_mask].copy()
+        print(f"Filtered {n_filtered} samples with sequence_length > {max_seq_len} from CSV")
     
     # Align with embeddings
     gene_to_idx = {g: i for i, g in enumerate(emb_genes)}
@@ -127,6 +136,15 @@ def get_models():
                 'model__learning_rate_init': [0.001, 0.01],
             }
         },
+        # 'RandomForest': {
+        #     'model': RandomForestRegressor(random_state=42, n_jobs=-1),
+        #     'params': {
+        #         'model__n_estimators': [100, 200, 300],
+        #         'model__max_depth': [10, 20, 30, None],
+        #         'model__min_samples_split': [2, 5, 10],
+        #         'model__min_samples_leaf': [1, 2, 4],
+        #     }
+        # },
     }
     return models
 
@@ -243,7 +261,8 @@ def train_final_model(
     params = {k.replace('model__', ''): v for k, v in best_result['best_params'].items()}
     
     # Build and fit
-    model = config['model'].__class__(**{**model.get_params(), **params})
+    base_model = config['model']
+    model = base_model.__class__(**{**base_model.get_params(), **params})
     
     pipeline = Pipeline([
         ('scaler', StandardScaler()),
@@ -272,9 +291,9 @@ def plot_results(results: list, y_true: np.ndarray, output_dir: str = None):
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # 1. R² comparison across models and k values
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(12, 6))
     
-    models = ['ElasticNet', 'SVR', 'MLP']
+    models = ['ElasticNet', 'SVR', 'MLP'] #, 'RandomForest']
     k_values = sorted(set(r['k'] for r in results))
     x = np.arange(len(models))
     width = 0.25
@@ -420,12 +439,12 @@ if __name__ == '__main__':
     # Run separate prediction head for each target
     for target_col in TARGET_COLS:
         safe_name = target_col.replace(' ', '_').replace('%', 'pct').replace('(', '').replace(')', '')
-        output_dir = f'results_{safe_name}'
+        output_dir = f'results'
         
         try:
             run_prediction_head(
                 embedding_path='tf_embeddings_output/embeddings_1280.npz',
-                target_csv='tf.csv',
+                target_csv='tf_with_lengths.csv',  # Updated to use tf_with_lengths.csv
                 target_col=target_col,
                 output_dir=output_dir,
                 max_seq_len=1024,
